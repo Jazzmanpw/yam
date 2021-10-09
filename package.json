@@ -1,0 +1,27 @@
+{
+  "name": "yam",
+  "version": "0.1.0",
+  "description": "Yet another Redux middleware to listen to both specific actions and state changes",
+  "main": "src/index.js",
+  "author": "Dmitry Shpak",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "prepare": "husky install",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "babel-jest": "^27.2.5",
+    "husky": "^7.0.0",
+    "jest": "^27.2.5",
+    "prettier": "^2.4.1",
+    "pretty-quick": "^3.1.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
+  }
+}
