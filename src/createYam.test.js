@@ -1,4 +1,5 @@
 import createYam from './createYam';
+import { handlerRejected, handlerRequired } from './actions';
 
 const prevState = 'previous';
 const nextState = 'next';
@@ -11,19 +12,24 @@ const store = {
   dispatch: jest.fn(),
 };
 
+const next = jest.fn(() => store.getState.mockReturnValue(nextState));
+
 beforeEach(() => {
   store.getState.mockReturnValue(prevState);
 });
 afterEach(() => {
   store.getState.mockReset();
   store.dispatch.mockClear();
+  next.mockClear();
 });
 
-const next = jest.fn(() => store.getState.mockReturnValue(nextState));
+function createYamDispatch(handlers, options) {
+  return createYam(handlers, options)(store)(next);
+}
 
 function callYam(handlers, options) {
   const action = { type: 'first' };
-  return createYam(handlers, options)(store)(next)(action);
+  return createYamDispatch(handlers, options)(action);
 }
 
 describe('base API', () => {
@@ -140,5 +146,83 @@ describe('dispatching', () => {
     await null;
 
     expect(store.dispatch).toBeCalledWith(action);
+  });
+});
+
+describe('injection', () => {
+  const action = { type: 'action type' };
+  it('injects a handler on `handlerRequired` action', () => {
+    const injectedHandler = jest.fn();
+    const dispatch = createYamDispatch([]);
+
+    dispatch(action);
+    expect(injectedHandler).not.toBeCalled();
+
+    dispatch(handlerRequired(injectedHandler));
+    dispatch(action);
+    expect(injectedHandler).toBeCalled();
+  });
+
+  it('does not inject a duplicated handler', () => {
+    const injectedHandler = jest.fn();
+    const dispatch = createYamDispatch([]);
+
+    dispatch(handlerRequired(injectedHandler));
+    dispatch(handlerRequired(injectedHandler));
+    dispatch(action);
+
+    expect(injectedHandler).toBeCalledTimes(1);
+  });
+
+  it('injection stops the middleware chain immediately', () => {
+    const initialHandler = jest.fn();
+    const dispatch = createYamDispatch([initialHandler]);
+    dispatch(handlerRequired(jest.fn()));
+
+    expect(next).not.toBeCalled();
+    expect(store.getState).not.toBeCalled();
+    expect(initialHandler).not.toBeCalled();
+  });
+
+  it('ejects a handler on `handlerReleased` action', () => {
+    const injectedHandler = jest.fn();
+    const ejectedHandler = jest.fn();
+    const dispatch = createYamDispatch([]);
+
+    dispatch(handlerRequired(injectedHandler));
+    dispatch(handlerRequired(ejectedHandler));
+    dispatch(handlerRejected(ejectedHandler));
+    dispatch(action);
+
+    expect(injectedHandler).toBeCalled();
+    expect(ejectedHandler).not.toBeCalled();
+  });
+
+  it('does not throw on ejection of a non-existent handler', () => {
+    const dispatch = createYamDispatch([]);
+
+    expect(() => {
+      dispatch(handlerRejected(jest.fn()));
+    }).not.toThrow();
+  });
+
+  it('does not eject initial handlers', () => {
+    const initialHandler = jest.fn();
+    const dispatch = createYamDispatch([initialHandler]);
+
+    dispatch(handlerRejected(initialHandler));
+    dispatch(action);
+
+    expect(initialHandler).toBeCalled();
+  });
+
+  it('ejection stops the middleware chain immediately', () => {
+    const initialHandler = jest.fn();
+    const dispatch = createYamDispatch([initialHandler]);
+    dispatch(handlerRejected(jest.fn()));
+
+    expect(next).not.toBeCalled();
+    expect(store.getState).not.toBeCalled();
+    expect(initialHandler).not.toBeCalled();
   });
 });

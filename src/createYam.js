@@ -1,22 +1,40 @@
+import { handlerRejectedType, handlerRequiredType } from './actions';
+
 export default function createYam(handlers, options) {
-  return (store) => (next) => (action) => {
-    const prevState = store.getState();
-    next(action);
-    const state = store.getState();
+  return (store) => {
+    let injectedHandlers = [];
 
-    const stateChangedBy = createStateChangedBy(prevState, state);
-
-    handlers.forEach(async (handler) => {
-      const nextAction = await handler({
-        state,
-        action,
-        dispatch: options?.passDispatch ? store.dispatch : undefined,
-        stateChangedBy,
-      });
-      if (nextAction) {
-        store.dispatch(nextAction);
+    return (next) => (action) => {
+      if (action.type === handlerRequiredType) {
+        if (!injectedHandlers.includes(action.payload)) {
+          injectedHandlers = [...injectedHandlers, action.payload];
+        }
+        return;
       }
-    });
+
+      if (action.type === handlerRejectedType) {
+        injectedHandlers = injectedHandlers.filter((h) => h !== action.payload);
+        return;
+      }
+
+      const prevState = store.getState();
+      next(action);
+      const state = store.getState();
+
+      const stateChangedBy = createStateChangedBy(prevState, state);
+
+      handlers.concat(injectedHandlers).forEach(async (handler) => {
+        const nextAction = await handler({
+          state,
+          action,
+          dispatch: options?.passDispatch ? store.dispatch : undefined,
+          stateChangedBy,
+        });
+        if (nextAction) {
+          store.dispatch(nextAction);
+        }
+      });
+    };
   };
 }
 
