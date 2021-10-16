@@ -1,4 +1,4 @@
-export default function createYam(handlers) {
+export default function createYam(handlers, options) {
   return (store) => (next) => (action) => {
     const prevState = store.getState();
     next(action);
@@ -6,14 +6,17 @@ export default function createYam(handlers) {
 
     const stateChangedBy = createStateChangedBy(prevState, state);
 
-    handlers.forEach((handler) =>
-      handler({
+    handlers.forEach(async (handler) => {
+      const nextAction = await handler({
         state,
         action,
-        dispatch: store.dispatch,
+        dispatch: options?.passDispatch ? store.dispatch : undefined,
         stateChangedBy,
-      }),
-    );
+      });
+      if (nextAction) {
+        store.dispatch(nextAction);
+      }
+    });
   };
 }
 
