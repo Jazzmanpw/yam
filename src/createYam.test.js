@@ -27,9 +27,9 @@ function createYamDispatch(handlers, options) {
   return createYam(handlers, options)(store)(next);
 }
 
-function callYam(handlers, options) {
+function callYam(handlers, context) {
   const action = { type: 'first' };
-  return createYamDispatch(handlers, options)(action);
+  return createYamDispatch(handlers, context)(action);
 }
 
 describe('base API', () => {
@@ -48,18 +48,19 @@ describe('base API', () => {
     );
   });
 
-  it('adds dispatch to the API if the second argument has `passDispatch: true`', () => {
+  it('pass the second argument to the handlers as a `context` property', () => {
     const handlers = [jest.fn(), jest.fn(), jest.fn()];
     const action = { type: 'first' };
+    const context = { key: 'value', any: 'object' };
 
-    callYam(handlers, { passDispatch: true });
+    callYam(handlers, context);
 
     handlers.forEach((handler) =>
       expect(handler).toBeCalledWith({
         state: nextState,
         action,
-        dispatch: store.dispatch,
         stateChangedBy: expect.any(Function),
+        context,
       }),
     );
   });
@@ -135,15 +136,6 @@ describe('dispatching', () => {
     callYam([handler]);
 
     await handler();
-
-    expect(store.dispatch).toBeCalledWith(action);
-  });
-
-  it('dispatches the returned action even if `passDispatch: true`', async () => {
-    const action = { type: 'action type' };
-    callYam([() => action], { passDispatch: true });
-
-    await null;
 
     expect(store.dispatch).toBeCalledWith(action);
   });
