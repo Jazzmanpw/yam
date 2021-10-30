@@ -1,6 +1,6 @@
 {
   "name": "yam",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Yet another Redux middleware to listen to both specific actions and state changes",
   "main": "src/index.ts",
   "author": "Dmitry Shpak",
