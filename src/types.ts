@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 export type HandlerArg<
-  State = any,
+  State,
   Context extends Record<string, unknown> | undefined = undefined,
   Action extends AnyAction = AnyAction,
 > = {
@@ -12,7 +12,7 @@ export type HandlerArg<
 };
 
 export type Handler<
-  State = any,
+  State,
   Context extends Record<string, unknown> | undefined = undefined,
   Action extends AnyAction = AnyAction,
 > = (
