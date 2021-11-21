@@ -1,13 +1,13 @@
 import { HandlerArg } from '../../..';
-import { getSearch } from './state';
+import { selectSearch } from './state';
 import { State } from '../store';
 import { serializeSearch } from '../utils';
 
 export default function handleRequestPersistence({
-  state,
+  select,
   stateChangedBy,
 }: HandlerArg<State>) {
-  if (stateChangedBy(getSearch)) {
-    window.location.search = serializeSearch(getSearch(state));
+  if (stateChangedBy(selectSearch)) {
+    window.location.search = serializeSearch(select(selectSearch));
   }
 }

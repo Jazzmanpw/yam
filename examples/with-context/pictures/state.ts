@@ -15,6 +15,6 @@ const results = createReducer([] as { id: number }[], (builder) =>
 
 export default combineReducers({ keyword, results });
 
-export const getPictures = (state: State) => state.pictures;
-export const getKeyword = (state: State) => getPictures(state).keyword;
-export const getResults = (state: State) => getPictures(state).results;
+export const selectPictures = (state: State) => state.pictures;
+export const selectKeyword = (state: State) => selectPictures(state).keyword;
+export const selectResults = (state: State) => selectPictures(state).results;

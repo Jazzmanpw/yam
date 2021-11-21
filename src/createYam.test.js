@@ -4,9 +4,6 @@ import { handlerRejected, handlerRequired } from './actions';
 const prevState = 'previous';
 const nextState = 'next';
 
-const changingSelector = (state) => state.toUpperCase();
-const notChangingSelector = (state) => typeof state === 'string';
-
 const store = {
   getState: jest.fn(),
   dispatch: jest.fn(),
@@ -33,7 +30,7 @@ function callYam(handlers, context) {
 }
 
 describe('base API', () => {
-  it('calls every handler with the state, action and stateChangedBy', () => {
+  it('calls every handler with the action, select and stateChangedBy', () => {
     const handlers = [jest.fn(), jest.fn(), jest.fn()];
     const action = { type: 'first' };
 
@@ -41,8 +38,8 @@ describe('base API', () => {
 
     handlers.forEach((handler) =>
       expect(handler).toBeCalledWith({
-        state: nextState,
         action,
+        select: expect.any(Function),
         stateChangedBy: expect.any(Function),
       }),
     );
@@ -57,8 +54,8 @@ describe('base API', () => {
 
     handlers.forEach((handler) =>
       expect(handler).toBeCalledWith({
-        state: nextState,
         action,
+        select: expect.any(Function),
         stateChangedBy: expect.any(Function),
         context,
       }),
@@ -79,8 +76,37 @@ describe('base API', () => {
   );
 });
 
+describe('select', () => {
+  it('returns the result of calling the selector with the next state', () => {
+    const selector = (v) => v.split('');
+    const handler = ({ select }) => {
+      expect(select(selector)).toEqual(selector(nextState));
+    };
+    callYam([handler]);
+  });
+
+  it('triggers the memoization magic for stateChangedBy', () => {
+    const selector = jest.fn();
+    const handlers = [
+      ({ select }) => select(selector),
+      ({ select }) => select(selector),
+    ];
+
+    callYam(handlers);
+
+    expect(selector).toBeCalledTimes(4);
+    expect(selector.mock.calls).toEqual([
+      [prevState],
+      [nextState],
+      [nextState],
+      [nextState],
+    ]);
+  });
+});
+
 describe('stateChangedBy', () => {
   it('returns true if the selector result changed', () => {
+    const changingSelector = (state) => state.toUpperCase();
     const handler = ({ stateChangedBy }) => {
       expect(stateChangedBy(changingSelector)).toBe(true);
     };
@@ -88,6 +114,7 @@ describe('stateChangedBy', () => {
   });
 
   it('returns false if the selector result did not change', () => {
+    const notChangingSelector = (state) => typeof state === 'string';
     const handler = ({ stateChangedBy }) => {
       expect(stateChangedBy(notChangingSelector)).toBe(false);
     };

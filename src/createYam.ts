@@ -30,11 +30,16 @@ export default function createYam<
       const state = store.getState();
 
       const stateChangedBy = createStateChangedBy(prevState, state);
+      const select = <Result>(selector: (state: State) => Result) => {
+        // trigger the memoization magic
+        stateChangedBy(selector);
+        return selector(state);
+      };
 
       handlers.concat(injectedHandlers).forEach(async (handler) => {
         const nextAction = await handler({
-          state,
           action,
+          select,
           stateChangedBy,
           context,
         });

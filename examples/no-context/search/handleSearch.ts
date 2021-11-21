@@ -1,15 +1,15 @@
 import { HandlerArg } from '../../..';
 import { resultReceived } from '../results/actions';
-import { getSearch } from './state';
+import { selectSearch } from './state';
 import { State } from '../store';
 import { fetchSearchResults } from '../utils';
 
 export default async function handleSearch({
-  state,
+  select,
   stateChangedBy,
 }: HandlerArg<State>) {
-  if (stateChangedBy(getSearch)) {
-    const result = await fetchSearchResults(getSearch(state));
+  if (stateChangedBy(selectSearch)) {
+    const result = await fetchSearchResults(select(selectSearch));
     return resultReceived(result);
   }
 }

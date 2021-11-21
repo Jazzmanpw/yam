@@ -1,6 +1,6 @@
 {
   "name": "yet-another-middleware",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Yet another Redux middleware to listen to both specific actions and state changes",
   "main": "src/index.ts",
   "author": "Dmitry Shpak",

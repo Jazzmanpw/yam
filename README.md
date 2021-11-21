@@ -98,16 +98,26 @@ You may handle only a specific piece of state change:
 import type { HandlerArg } from 'yet-another-middleware';
 
 function handleStateChange({
-  state,
+  select,
   stateChangedBy,
 }: HandlerArg<State, Context>) {
   if (stateChangedBy(selectThing)) {
-    const thing = selectThing(state);
+    const thing = select(selectThing);
     // handle the state change
   }
 }
 ```
 
-If you want the memoization work as expected here, you should call the selector with the new state only after the `stateChangedBy` being called with it. The library ensures that the selector is being called once with the previous state and once with the next one no matter how many handlers use it.
+The order of `stateChangedBy` and `select` calls doesn't matter, we make sure that the old state will be passed to the selector only once.
 
-The problems may come though if one of the handlers doesn't use the `stateChangedBy` and another does (for a specific selector). This problem is still to be solved.
+The problems may come though if you use so-say second-order memoized selectors:
+
+```js
+const selectThing = createSelector(selectParent, (parent) => parent.thing);
+const selectSecondThing = createSelector(
+  selectThing,
+  (thing) => thing.secondThing,
+);
+```
+
+If you use `stateChangedBy` or `select` for `selectSecondThing`, it will implicitly invalidate caching for the `selectThing` as well (I mean the cache in terms of [`reselect`](https://github.com/reduxjs/reselect)). It shouldn't lead to any unexpected results regarding the prev/next state equality, but may lead to unnecessary `selectThing` result computation. And there's no sane way to avoid it but to reorganize the selectors (if such computations really bother you).

@@ -5,7 +5,7 @@ export type HandlerArg<
   Context extends Record<string, unknown> | undefined = undefined,
   Action extends AnyAction = AnyAction,
 > = {
-  state: State;
+  select: <Result>(selector: (state: State) => Result) => Result;
   action: Action;
   stateChangedBy: (selector: (state: State) => unknown) => boolean;
   context: Context;

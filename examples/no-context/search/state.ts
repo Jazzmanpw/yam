@@ -5,4 +5,4 @@ import keyword from './keyword/state';
 
 export default combineReducers({ filters, keyword });
 
-export const getSearch = (state: State) => state.search;
+export const selectSearch = (state: State) => state.search;

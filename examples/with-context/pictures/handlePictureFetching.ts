@@ -1,15 +1,15 @@
 import type { HandlerArg } from '../../..';
 import type { State, YamContext } from '../store';
 import { resultsReceived } from './actions';
-import { getKeyword } from './state';
+import { selectKeyword } from './state';
 
 export default async function handlePictureFetching({
-  state,
+  select,
   stateChangedBy,
   context: { fetchPictures },
 }: HandlerArg<State, YamContext>) {
-  if (stateChangedBy(getKeyword)) {
-    const result = await fetchPictures(getKeyword(state));
+  if (stateChangedBy(selectKeyword)) {
+    const result = await fetchPictures(select(selectKeyword));
     return resultsReceived(result);
   }
 }
