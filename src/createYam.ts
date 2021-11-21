@@ -1,9 +1,5 @@
 import type { AnyAction, Dispatch, MiddlewareAPI } from 'redux';
-import {
-  HandlerInjectionAction,
-  isHandlerRejectedAction,
-  isHandlerRequiredAction,
-} from './actions';
+import { isHandlerRejectedAction, isHandlerRequiredAction } from './actions';
 import type { Handler } from './types';
 
 export default function createYam<
@@ -16,7 +12,7 @@ export default function createYam<
   return (store: MiddlewareAPI<Dispatch, State>) => {
     let injectedHandlers = [] as Handler<State, Context>[];
 
-    return (next: Dispatch) => (action: HandlerInjectionAction | AnyAction) => {
+    return (next: Dispatch) => (action: AnyAction) => {
       if (isHandlerRequiredAction(action)) {
         if (!injectedHandlers.includes(action.payload)) {
           injectedHandlers = [...injectedHandlers, action.payload];

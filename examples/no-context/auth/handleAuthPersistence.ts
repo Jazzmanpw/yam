@@ -1,4 +1,4 @@
-import { createYamHandler } from '../../../src';
+import { createYamHandler } from '../../..';
 import type { State } from '../store';
 import { logInSucceeded, logoutInitiated } from './actions';
 

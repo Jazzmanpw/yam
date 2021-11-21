@@ -1,4 +1,4 @@
-import { HandlerArg } from '../../../src/types';
+import { HandlerArg } from '../../..';
 import { getSearch } from './state';
 import { State } from '../store';
 import { serializeSearch } from '../utils';

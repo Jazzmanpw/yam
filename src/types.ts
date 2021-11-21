@@ -7,7 +7,7 @@ export type HandlerArg<
 > = {
   state: State;
   action: Action;
-  stateChangedBy: <Result>(selector: (state: State) => Result) => boolean;
+  stateChangedBy: (selector: (state: State) => unknown) => boolean;
   context: Context;
 };
 

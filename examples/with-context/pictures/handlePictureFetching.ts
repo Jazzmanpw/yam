@@ -1,4 +1,4 @@
-import type { HandlerArg } from '../../../build/types';
+import type { HandlerArg } from '../../..';
 import type { State, YamContext } from '../store';
 import { resultsReceived } from './actions';
 import { getKeyword } from './state';
